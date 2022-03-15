@@ -11,14 +11,14 @@
       {
         bool esPrimo = true;
 
-        for (int divisor = 2; divisor < current; divisor++)
+        for (int divisor = 2; divisor < current && esPrimo; divisor++)
         {
           if (current % divisor == 0)
           {
             esPrimo = false;
-            break;
           }
         }
+
         if (esPrimo) Console.Write(current + " ");
 
         current++;
