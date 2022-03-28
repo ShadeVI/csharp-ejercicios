@@ -2,6 +2,11 @@
 {
   class TresEnRayaMain
   {
+    enum Jugadores
+    {
+      Jugador1,
+      Jugador2
+    };
     static void Main(string[] args)
     {
       string[,] tabla = new string[3, 3] {
@@ -12,10 +17,13 @@
 
       bool jugando = true;
 
+      Jugadores turno = Jugadores.Jugador2;
+
       string? lecturaUsuario = "";
 
       do
       {
+        System.Console.WriteLine($"Turno jugador: {turno}");
         System.Console.WriteLine("Posiciones: \n 1 2 3 \n 4 5 6 \n 7 8 9");
         System.Console.Write("Introduce tu eleccion: ");
         lecturaUsuario = Console.ReadLine();
@@ -32,11 +40,15 @@
         int linea = DeterminaLinea(usuarioEleccion);
         int columna = DeterminarColumna(usuarioEleccion);
 
-        bool hasIntroducidoValor = IntroducirValor(tabla, linea, columna);
+        bool hasIntroducidoValor = IntroducirValor(tabla, linea, columna, turno);
 
         if (!hasIntroducidoValor)
         {
           System.Console.WriteLine("La celda está ocupada! Intenta otra posición");
+        }
+        else
+        {
+          turno = Jugadores.Jugador2 ^ turno;
         }
 
         ImprimirTabla(tabla);
@@ -45,13 +57,13 @@
       } while (jugando);
     }
 
-    static bool IntroducirValor(string[,] tabla, int linea, int columna)
+    static bool IntroducirValor(string[,] tabla, int linea, int columna, Jugadores turno)
     {
       bool puedeIntroducir = ComprobacionCelda(tabla, linea, columna);
 
       if (puedeIntroducir)
       {
-        tabla[linea, columna] = "X";
+        tabla[linea, columna] = turno == Jugadores.Jugador1 ? "X" : "O";
         return true;
       }
       return false;
