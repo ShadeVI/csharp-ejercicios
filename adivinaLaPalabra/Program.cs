@@ -7,8 +7,6 @@
       string[] palabras = Utilidades.Archivos.LeerArchivos();
       string palabra = Utilidades.Palabras.PRandom(palabras);
       string palabraOculta = Utilidades.Palabras.Ocultar(palabra);
-
-      bool hasPerdido = false;
       bool juegoTerminado = false;
 
       int intentos = 5;
