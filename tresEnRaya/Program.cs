@@ -27,11 +27,17 @@
           continue;
         }
 
-        int usuarioEleccion = Convert.ToInt32(lecturaUsuario);
+        int usuarioEleccion = Convert.ToInt32(lecturaUsuario) - 1;
 
         int linea = DeterminaLinea(usuarioEleccion);
+        int columna = DeterminarColumna(usuarioEleccion);
 
-        bool valorIntroducido = IntroducirValor(tabla, linea, usuarioEleccion);
+        bool hasIntroducidoValor = IntroducirValor(tabla, linea, columna);
+
+        if (!hasIntroducidoValor)
+        {
+          System.Console.WriteLine("La celda está ocupada! Intenta otra posición");
+        }
 
         ImprimirTabla(tabla);
 
@@ -39,11 +45,9 @@
       } while (jugando);
     }
 
-    static bool IntroducirValor(string[,] tabla, int linea, int eleccion)
+    static bool IntroducirValor(string[,] tabla, int linea, int columna)
     {
-      bool puedeIntroducir = ComprobacionCelda(tabla, eleccion, linea);
-
-      int columna = DeterminarColumna(eleccion);
+      bool puedeIntroducir = ComprobacionCelda(tabla, linea, columna);
 
       if (puedeIntroducir)
       {
@@ -55,18 +59,18 @@
 
     static int DeterminarColumna(int eleccion)
     {
-      int columna = (eleccion % 3) == 0 ? 2 : (eleccion % 3) - 1;
+      int columna = ((eleccion + 1) % 3) == 0 ? 2 : ((eleccion + 1) % 3) - 1;
       return columna;
     }
 
     static int DeterminaLinea(int eleccion)
     {
       int linea;
-      if (eleccion == 1 || eleccion == 2 || eleccion == 3)
+      if (eleccion == 0 || eleccion == 1 || eleccion == 2)
       {
         linea = 0;
       }
-      else if (eleccion == 4 || eleccion == 5 || eleccion == 6)
+      else if (eleccion == 3 || eleccion == 4 || eleccion == 5)
       {
         linea = 1;
       }
@@ -77,9 +81,9 @@
       return linea;
     }
 
-    static bool ComprobacionCelda(string[,] tabla, int eleccion, int linea)
+    static bool ComprobacionCelda(string[,] tabla, int linea, int columna)
     {
-
+      if (tabla[linea, columna] == "X" || tabla[linea, columna] == "O") return false;
       return true;
     }
 
