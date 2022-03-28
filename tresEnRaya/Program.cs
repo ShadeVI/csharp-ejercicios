@@ -55,8 +55,17 @@
 
     static void ImprimirTabla(string[,] tabla)
     {
-      // .GetLength(0) => 0 == 1ª dimension => numero de lineas en la dimension 1 { (1){...}, (2){...}, (3){...} } => 3 lineas en la matriz
-      // .GetLength(1) => 2 == 2ª dimension => numero de culumnas en cada linea { (1){1,2,3}, (2){1,2,3}, (3){1,2,3} } => 3 elementos en cada linea
+      //                                                                  1ª DIMENSION === 3 elementos / lineas
+      //                                                                 ______________________________________
+      //
+      //                                                                  2ª dim   ===  3 elemntos / columnas en cada linea
+      //                                                                  __________   __________   __________
+      // string[,] tabla = new string[1ª dimension, 2ª dimension] ===> { { e, e, e }, { e, e, e }, { e, e, e } }
+      // 
+      // .GetLength(X) es 0-based donde X es el numero de la dimension
+      // .GetLength(0) => (0 == 1ª dimension) => numero de lineas en la dimension 1  (1ª dimension) { (1 linea){...}, (2 linea){...}, (3 linea){...} } => 3 lineas en la matriz
+      // .GetLength(1) => (1 == 2ª dimension) => numero de columnas en cada linea    (2ª dimension) { (1 linea){e,e,e}, (2 linea){e,e,e}, (3 linea){e,e,e} } => 3 elementos en cada linea
+
       int totalLineas = tabla.GetLength(0);
       int totalElementos = tabla.GetLength(1);
       for (int row = 0; row < totalLineas; row++)
