@@ -18,7 +18,7 @@
 
       Introduccion();
 
-      while (!hasPerdido && intentos > 0 && !juegoTerminado)
+      while (intentos > 0 && !juegoTerminado)
       {
 
         Console.WriteLine("Te queda{0} {2} intento{1}", (intentos > 1 ? "n" : ""), (intentos > 1 ? "s" : ""), intentos);
@@ -59,7 +59,7 @@
 
       }
 
-      if (juegoTerminado && !hasPerdido)
+      if (juegoTerminado && intentos == 0)
       {
         Console.WriteLine("Muy bien, has ganado!");
       }
