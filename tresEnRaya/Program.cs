@@ -12,22 +12,26 @@
 
       bool jugando = true;
 
-      string? usuarioEleccion = "";
+      string? lecturaUsuario = "";
 
       do
       {
         System.Console.WriteLine("Posiciones: \n 1 2 3 \n 4 5 6 \n 7 8 9");
         System.Console.Write("Introduce tu eleccion: ");
-        usuarioEleccion = Console.ReadLine();
+        lecturaUsuario = Console.ReadLine();
 
-        if (string.IsNullOrEmpty(usuarioEleccion)) continue;
-        if (usuarioEleccion == "q")
+        if (string.IsNullOrEmpty(lecturaUsuario)) continue;
+        if (lecturaUsuario == "q")
         {
           jugando = false;
           continue;
         }
 
-        IntroducirValor(tabla, Convert.ToInt32(usuarioEleccion));
+        int usuarioEleccion = Convert.ToInt32(lecturaUsuario);
+
+        int linea = DeterminaLinea(usuarioEleccion);
+
+        bool valorIntroducido = IntroducirValor(tabla, linea, usuarioEleccion);
 
         ImprimirTabla(tabla);
 
@@ -35,30 +39,56 @@
       } while (jugando);
     }
 
-    static void IntroducirValor(string[,] tabla, int eleccion)
+    static bool IntroducirValor(string[,] tabla, int linea, int eleccion)
     {
-      bool riga1 = eleccion == 1 || eleccion == 2 || eleccion == 3;
-      bool riga2 = eleccion == 4 || eleccion == 5 || eleccion == 6;
-      if (riga1)
+      bool puedeIntroducir = ComprobacionCelda(tabla, eleccion, linea);
+
+      int columna = DeterminarColumna(eleccion);
+
+      if (puedeIntroducir)
       {
-        tabla[0, eleccion - 1] = "X";
+        tabla[linea, columna] = "X";
+        return true;
       }
-      else if (riga2)
+      return false;
+    }
+
+    static int DeterminarColumna(int eleccion)
+    {
+      int columna = (eleccion % 3) == 0 ? 2 : (eleccion % 3) - 1;
+      return columna;
+    }
+
+    static int DeterminaLinea(int eleccion)
+    {
+      int linea;
+      if (eleccion == 1 || eleccion == 2 || eleccion == 3)
       {
-        tabla[1, eleccion - 4] = "X";
+        linea = 0;
+      }
+      else if (eleccion == 4 || eleccion == 5 || eleccion == 6)
+      {
+        linea = 1;
       }
       else
       {
-        tabla[2, eleccion - 7] = "X";
+        linea = 2;
       }
+      return linea;
+    }
+
+    static bool ComprobacionCelda(string[,] tabla, int eleccion, int linea)
+    {
+
+      return true;
     }
 
     static void ImprimirTabla(string[,] tabla)
     {
-      //                                                                  1ª DIMENSION === 3 elementos / lineas
+      //                                                                  1ª DIMENSION  === 3 elementos / lineas
       //                                                                 ______________________________________
       //
-      //                                                                  2ª dim   ===  3 elemntos / columnas en cada linea
+      //                                                                  2ª DIMESION   ===  3 elemntos / columnas en cada linea
       //                                                                  __________   __________   __________
       // string[,] tabla = new string[1ª dimension, 2ª dimension] ===> { { e, e, e }, { e, e, e }, { e, e, e } }
       // 
@@ -68,13 +98,13 @@
 
       int totalLineas = tabla.GetLength(0);
       int totalElementos = tabla.GetLength(1);
-      for (int row = 0; row < totalLineas; row++)
+      for (int linea = 0; linea < totalLineas; linea++)
       {
-        for (int col = 0; col < totalElementos; col++)
+        for (int columna = 0; columna < totalElementos; columna++)
         {
-          System.Console.Write($" {tabla[row, col]} {(col < totalElementos - 1 ? "|" : "")}{(col == totalElementos - 1 ? "\n" : "")}");
+          System.Console.Write($" {tabla[linea, columna]} {(columna < totalElementos - 1 ? "|" : "")}{(columna == totalElementos - 1 ? "\n" : "")}");
         }
-        if (!(row == totalLineas - 1))
+        if (!(linea == totalLineas - 1))
         {
           System.Console.WriteLine("-----------");
         }
