@@ -16,6 +16,7 @@
                                         };
 
       bool jugando = true;
+      bool hasGanado = false;
 
       Jugadores turno = Jugadores.Jugador2;
 
@@ -23,9 +24,9 @@
 
       do
       {
-        System.Console.WriteLine($"Turno jugador: {turno}");
-        System.Console.WriteLine("Posiciones: \n 1 2 3 \n 4 5 6 \n 7 8 9");
-        System.Console.Write("Introduce tu eleccion: ");
+        System.Console.WriteLine($"\n\nTurno jugador: {turno}");
+        System.Console.WriteLine("\nPosiciones: \n 1 2 3 \n 4 5 6 \n 7 8 9");
+        System.Console.Write("\nIntroduce tu eleccion: ");
         lecturaUsuario = Console.ReadLine();
 
         if (string.IsNullOrEmpty(lecturaUsuario)) continue;
@@ -37,24 +38,32 @@
 
         int usuarioEleccion = Convert.ToInt32(lecturaUsuario) - 1;
 
-        int linea = DeterminaLinea(usuarioEleccion);
+        int linea = DeterminarLinea(usuarioEleccion);
         int columna = DeterminarColumna(usuarioEleccion);
 
         bool hasIntroducidoValor = IntroducirValor(tabla, linea, columna, turno);
 
-        if (!hasIntroducidoValor)
+        hasGanado = DeterminarGanador(tabla);
+        if (hasGanado)
         {
-          System.Console.WriteLine("La celda está ocupada! Intenta otra posición");
-        }
-        else
-        {
-          turno = Jugadores.Jugador2 ^ turno;
+          jugando = false;
         }
 
         ImprimirTabla(tabla);
 
+        if (!hasIntroducidoValor)
+        {
+          System.Console.WriteLine("La celda está ocupada! Intenta otra posición");
+          continue;
+        }
+
+        if (!hasGanado) turno = Jugadores.Jugador2 ^ turno;
+
+
 
       } while (jugando);
+
+      Console.WriteLine($"\n\nEl ganador es {turno}\n\n");
     }
 
     static bool IntroducirValor(string[,] tabla, int linea, int columna, Jugadores turno)
@@ -75,7 +84,7 @@
       return columna;
     }
 
-    static int DeterminaLinea(int eleccion)
+    static int DeterminarLinea(int eleccion)
     {
       int linea;
       if (eleccion == 0 || eleccion == 1 || eleccion == 2)
@@ -101,6 +110,8 @@
 
     static void ImprimirTabla(string[,] tabla)
     {
+
+      // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       //                                                                  1ª DIMENSION  === 3 elementos / lineas
       //                                                                 ______________________________________
       //
@@ -111,6 +122,7 @@
       // .GetLength(X) es 0-based donde X es el numero de la dimension
       // .GetLength(0) => (0 == 1ª dimension) => numero de lineas en la dimension 1  (1ª dimension) { (1 linea){...}, (2 linea){...}, (3 linea){...} } => 3 lineas en la matriz
       // .GetLength(1) => (1 == 2ª dimension) => numero de columnas en cada linea    (2ª dimension) { (1 linea){e,e,e}, (2 linea){e,e,e}, (3 linea){e,e,e} } => 3 elementos en cada linea
+      // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
       int totalLineas = tabla.GetLength(0);
       int totalElementos = tabla.GetLength(1);
@@ -127,6 +139,38 @@
 
       }
 
+    }
+
+    static bool DeterminarGanador(string[,] tabla)
+    {
+      string[,] patterns = new string[8, 3] {
+        // Lineas Horizontales
+        {tabla[0,0], tabla[0,1], tabla[0,2]},
+        {tabla[1,0],tabla[1,1],tabla[1,2]},
+        {tabla[2,0],tabla[2,1],tabla[2,2],},
+        // Lineas Verticales
+        {tabla[0,0],tabla[1,0],tabla[2,0]},
+        {tabla[0,1],tabla[1,1],tabla[2,1]},
+        {tabla[0,2],tabla[1,2],tabla[2,2]},
+        // Lineas Obliquas
+        {tabla[0,0],tabla[1,1],tabla[2,2]},
+        {tabla[0,2],tabla[1,1],tabla[2,0]},
+      };
+
+      int totalLineas = patterns.GetLength(0);
+
+      bool hayGanador = false;
+
+      for (int linea = 0; linea < totalLineas; linea++)
+      {
+        bool iguales = patterns[linea, 0] == patterns[linea, 1] && patterns[linea, 0] == patterns[linea, 2];
+        bool vacios = patterns[linea, 0] == " " || patterns[linea, 1] == " " || patterns[linea, 2] == " ";
+        if (iguales && !vacios)
+        {
+          hayGanador = true;
+        }
+      }
+      return hayGanador;
     }
   }
 }
