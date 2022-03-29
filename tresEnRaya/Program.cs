@@ -18,7 +18,7 @@
       bool jugando = true;
       bool hasGanado = false;
 
-      Jugadores turno = Jugadores.Jugador2;
+      Jugadores turno = (Jugadores)DeterminarJugadorInicial();
 
       string? lecturaUsuario = "";
 
@@ -171,6 +171,13 @@
         }
       }
       return hayGanador;
+    }
+
+    static int DeterminarJugadorInicial()
+    {
+      Random random = new Random();
+      double num = random.NextDouble();
+      return Convert.ToInt16(Math.Round(num, 1));
     }
   }
 }
