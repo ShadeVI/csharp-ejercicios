@@ -24,6 +24,7 @@
 
       do
       {
+        ImprimirTabla(tabla);
         System.Console.WriteLine($"\n\nTurno jugador: {turno}");
         System.Console.WriteLine("\nPosiciones: \n 1 2 3 \n 4 5 6 \n 7 8 9");
         System.Console.Write("\nIntroduce tu eleccion: ");
@@ -38,6 +39,12 @@
 
         int usuarioEleccion = Convert.ToInt32(lecturaUsuario) - 1;
 
+        if (usuarioEleccion < 0 || usuarioEleccion > 8)
+        {
+          Console.WriteLine("El valor introducido no corresponse a ninguna celda.");
+          continue;
+        }
+
         int linea = DeterminarLinea(usuarioEleccion);
         int columna = DeterminarColumna(usuarioEleccion);
 
@@ -49,8 +56,6 @@
           jugando = false;
         }
 
-        ImprimirTabla(tabla);
-
         if (!hasIntroducidoValor)
         {
           System.Console.WriteLine("La celda está ocupada! Intenta otra posición");
@@ -59,10 +64,10 @@
 
         if (!hasGanado) turno = Jugadores.Jugador2 ^ turno;
 
-
-
+        Console.Clear();
       } while (jugando);
 
+      ImprimirTabla(tabla);
       Console.WriteLine($"\n\nEl ganador es {turno}\n\n");
     }
 
@@ -123,7 +128,7 @@
       // .GetLength(0) => (0 == 1ª dimension) => numero de lineas en la dimension 1  (1ª dimension) { (1 linea){...}, (2 linea){...}, (3 linea){...} } => 3 lineas en la matriz
       // .GetLength(1) => (1 == 2ª dimension) => numero de columnas en cada linea    (2ª dimension) { (1 linea){e,e,e}, (2 linea){e,e,e}, (3 linea){e,e,e} } => 3 elementos en cada linea
       // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+      Console.WriteLine();
       int totalLineas = tabla.GetLength(0);
       int totalElementos = tabla.GetLength(1);
       for (int linea = 0; linea < totalLineas; linea++)
