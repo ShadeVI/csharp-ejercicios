@@ -147,7 +147,6 @@ namespace Program.Utilidades
       {
         bool letraEsOculta = oculta[i] == '_';
         bool letrasIguales = Convert.ToChar(letra.ToLower()) == palabraOriginal[i];
-        Console.WriteLine($"{letraEsOculta}, {letrasIguales}");
         if (letraEsOculta && letrasIguales)
         {
           nuevaOculta += palabraOriginal[i];
