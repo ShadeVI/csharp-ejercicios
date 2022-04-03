@@ -79,7 +79,7 @@ namespace CarreraCoches
     {
       Random r = new Random();
       int FIN = pista.LongitudPista;
-      int tiempoActualizacion = 500;
+      int tiempoActualizacion = 1000;
 
       dynamic[] estadisticasCochesRealtime = new dynamic[coches.Length];
       for (int i = 0; i < estadisticasCochesRealtime.Length; i++)
@@ -88,6 +88,8 @@ namespace CarreraCoches
         datosRealtime.nombre = coches[i].Nombre;
         datosRealtime.velocidadFinal = 0;
         datosRealtime.recorridoX = 0;
+        datosRealtime.totalVelocidades = 0;
+        datosRealtime.stepsRegistrados = 0;
         estadisticasCochesRealtime[i] = datosRealtime;
       }
 
@@ -105,8 +107,10 @@ namespace CarreraCoches
           double velocidadInicial = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
           dynamic datosRealtime = new ExpandoObject();
           datosRealtime.nombre = coches[i].Nombre;
-          datosRealtime.velocidadFinal = CalculoVelocidadFinal(velocidadInicial, pista.Friccion, tiempoActualizacion);
-          datosRealtime.recorridoX = EspacioRecorrido(datosRealtime.velocidadFinal, tiempoActualizacion) + estadisticasCochesRealtime[i].recorridoX;
+          datosRealtime.velocidadFinal = CalculoVelocidadFinal(velocidadInicial, pista.Friccion);
+          datosRealtime.recorridoX = EspacioRecorrido(datosRealtime.velocidadFinal) + estadisticasCochesRealtime[i].recorridoX;
+          datosRealtime.totalVelocidades = estadisticasCochesRealtime[i].totalVelocidades + estadisticasCochesRealtime[i].velocidadFinal;
+          datosRealtime.stepsRegistrados = estadisticasCochesRealtime[i].stepsRegistrados + 1;
           estadisticasCochesRealtime[i] = datosRealtime;
           maxRecorrido = datosRealtime.recorridoX > maxRecorrido ? datosRealtime.recorridoX : maxRecorrido;
         }
@@ -132,14 +136,15 @@ namespace CarreraCoches
       /* crea header */
       header.Append($"{"Nombre".PadRight(13)}");
       header.Append($"| {"".PadRight(30)}");
-      header.Append($"| {"Velocidad Actual".PadRight(20)}");
+      header.Append($"| {"Velocidad Actual".PadRight(15)}");
+      header.Append($"| {"Velocidad Media".PadRight(15)}");
       header.AppendLine($"| Tot.recorrido");
       header.AppendLine(string.Concat(Enumerable.Repeat("-", Console.WindowWidth)));
 
+      var grafico = new StringBuilder();
       /* Por cada coche crea una linea */
       for (int i = 0; i < coches.Length; i++)
       {
-        var linea = new StringBuilder();
         int celdasRecorridas = Convert.ToInt32(Math.Floor((datos[i].recorridoX * totalCeldas) / FIN));
 
         if (celdasRecorridas > totalCeldas) celdasRecorridas = totalCeldas;
@@ -150,26 +155,27 @@ namespace CarreraCoches
           celdas += "#";
         }
         /* crea linea */
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        linea.Append($"{coches[i].Nombre.PadRight(13)}");
-        linea.Append($"| {celdas.PadRight(30)}");
-        linea.Append($"| {datos[i].velocidadFinal:f2} km/h".PadRight(22));
-        linea.AppendLine($"| {datos[i].recorridoX:f2} m");
-        Console.WriteLine($"{linea}");
-        Console.ResetColor();
+        grafico.Append($"{coches[i].Nombre.PadRight(13)}");
+        grafico.Append($"| {celdas.PadRight(30)}");
+        grafico.Append($"| {datos[i].velocidadFinal:f2} km/h".PadRight(18));
+        grafico.Append($"| {(datos[i].totalVelocidades / datos[i].stepsRegistrados):f2} km/h".PadRight(18));
+        grafico.AppendLine($"| {datos[i].recorridoX:f2} m");
       }
+      Console.WriteLine(header);
+      Console.ForegroundColor = ConsoleColor.Cyan;
+      Console.WriteLine($"{grafico}");
 
-
+      Console.ResetColor();
     }
 
-    private static double CalculoVelocidadFinal(double velocidadInicial, (string, double) friccion, int tiempo = 1000)
+    private static double CalculoVelocidadFinal(double velocidadInicial, (string, double) friccion)
     {
       double calc = velocidadInicial - (friccion.Item2 * 9.8 * 1);
       if (calc <= 0) calc = 0;
       return calc;
     }
 
-    private static double EspacioRecorrido(double velocidad, int tiempoX = 1000)
+    private static double EspacioRecorrido(double velocidad)
     {
       return velocidad * (1000d / 3600d) * 1;
     }
