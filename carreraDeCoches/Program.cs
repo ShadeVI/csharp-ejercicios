@@ -59,7 +59,7 @@ namespace CarreraCoches
 
     private static void MuestraDatos(Coche[] coches, Pista pista)
     {
-      const int columnWidth = 13;
+      const int columnWidth = 14;
       Console.ForegroundColor = ConsoleColor.Cyan;
       Console.WriteLine("\nINFO COCHES");
       Console.ForegroundColor = ConsoleColor.Black;

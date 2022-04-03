@@ -4,10 +4,13 @@ namespace CarreraCoches
 {
   class Pista
   {
+    static private (string Tipo, double Valor) ASFALTO = ("asfalto", 0.8);
+    static private (string Tipo, double Valor) TIERRA = ("tierra", 0.6);
+    static private (string Tipo, double Valor) NIEVE = ("nieve", 0.05);
+    static private (string Tipo, double Valor) AGUA = ("agua", 0.2);
+    private (string, double)[] tiposPistas = { ASFALTO, TIERRA, NIEVE, AGUA };
     private int longitudPista;
-    private string tipoPista;
-
-    private string[] tiposPistas = { "asfalto", "tierra", "arena" };
+    private (string, double) tipoPista;
 
     public Pista()
     {
@@ -18,10 +21,11 @@ namespace CarreraCoches
 
     public void InfoPista()
     {
-      const int columnWidth = 13;
+      Console.WriteLine(nameof(ASFALTO));
+      const int columnWidth = 14;
       var info = new StringBuilder();
-      info.AppendLine($"{"Tipo".PadRight(columnWidth)}{"Longitud".PadRight(columnWidth)}");
-      info.AppendLine($"{this.tipoPista.PadRight(columnWidth)}{this.longitudPista + " m".PadRight(columnWidth)}");
+      info.AppendLine($"{"Tipo".PadRight(columnWidth)}{"Friccion".PadRight(columnWidth)}{"Longitud".PadRight(columnWidth)}");
+      info.AppendLine($"{this.tipoPista.Item1.PadRight(columnWidth)}{this.tipoPista.Item2.ToString().PadRight(columnWidth)}{this.longitudPista + " m".PadRight(columnWidth)}");
       Console.WriteLine(info.ToString());
     }
 
