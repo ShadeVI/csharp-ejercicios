@@ -77,7 +77,7 @@ namespace CarreraCoches
     {
       Random r = new Random();
       int FIN = pista.LongitudPista;
-      int tiempoActualizacion = 1000;
+      int tiempoActualizacion = 1000 / 300;
 
       double recorridoX = 0;
       double velocidad = 0;
@@ -108,7 +108,7 @@ namespace CarreraCoches
       System.Console.WriteLine(ganador);
     }
 
-    private static void MostrarGrafico(Coche[] coches, double[] totalesPercorridos, int FIN)
+    private static void MostrarGrafico(Coche[] coches, double[] totalesRecorridos, int FIN)
     {
       int totalCeldas = 30;
       var grafico = new StringBuilder();
@@ -117,17 +117,17 @@ namespace CarreraCoches
       /* Por cada coche crea una linea */
       for (int i = 0; i < coches.Length; i++)
       {
-        int celdasPercorridas = Convert.ToInt32(Math.Floor((totalesPercorridos[i] * totalCeldas) / FIN));
+        int celdasRecorridas = Convert.ToInt32(Math.Floor((totalesRecorridos[i] * totalCeldas) / FIN));
 
-        if (celdasPercorridas > totalCeldas) celdasPercorridas = totalCeldas;
+        if (celdasRecorridas > totalCeldas) celdasRecorridas = totalCeldas;
 
         string celdas = "";
-        for (int j = 0; j < celdasPercorridas; j++)
+        for (int j = 0; j < celdasRecorridas; j++)
         {
           celdas += "#";
         }
 
-        grafico.AppendLine($"{coches[i].Nombre.PadRight(13)}|{celdas.PadRight(30)}| FIN | Tot.recorrido: {totalesPercorridos[i]:f2} m");
+        grafico.AppendLine($"{coches[i].Nombre.PadRight(13)}|{celdas.PadRight(30)}| FIN | Tot.recorrido: {totalesRecorridos[i]:f2} m");
       }
 
       System.Console.WriteLine($"{grafico}");
