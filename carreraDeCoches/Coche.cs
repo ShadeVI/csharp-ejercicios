@@ -48,7 +48,7 @@ namespace CarreraCoches
     {
       const int columnWidth = 13;
       var info = new StringBuilder();
-      info.AppendLine($"{"Nombre".PadRight(columnWidth)}{"Modelo".PadRight(columnWidth)}{"Color".PadRight(columnWidth)}{"Velocidad Maxima".PadRight(columnWidth)}");
+      //info.AppendLine($"{"Nombre".PadRight(columnWidth)}{"Modelo".PadRight(columnWidth)}{"Color".PadRight(columnWidth)}{"Velocidad Maxima".PadRight(columnWidth)}");
       info.AppendLine($"{this.nombre.PadRight(columnWidth)}{this.modelo.PadRight(columnWidth)}{this.color.PadRight(columnWidth)}{this.velocidadMaxima + " km/h".PadRight(columnWidth)}");
       Console.WriteLine(info.ToString());
     }

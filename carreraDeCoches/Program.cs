@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Text;
+using System.Dynamic;
 
 namespace CarreraCoches
 {
@@ -58,15 +59,17 @@ namespace CarreraCoches
 
     private static void MuestraDatos(Coche[] coches, Pista pista)
     {
+      const int columnWidth = 13;
       Console.ForegroundColor = ConsoleColor.Cyan;
       Console.WriteLine("\nINFO COCHES");
       Console.ForegroundColor = ConsoleColor.Black;
+      Console.WriteLine($"{"Nombre".PadRight(columnWidth)}{"Modelo".PadRight(columnWidth)}{"Color".PadRight(columnWidth)}{"Velocidad Maxima".PadRight(columnWidth)}\n");
       for (int i = 0; i < coches.Length; i++)
       {
         coches[i].InfoCoche();
       }
       Console.ForegroundColor = ConsoleColor.Cyan;
-      Console.WriteLine("\nINFO PISTA");
+      Console.WriteLine("\nINFO PISTA\n");
       Console.ForegroundColor = ConsoleColor.Black;
       pista.InfoPista();
 
@@ -77,13 +80,19 @@ namespace CarreraCoches
     {
       Random r = new Random();
       int FIN = pista.LongitudPista;
-      int tiempoActualizacion = 1000 / 300;
+      int tiempoActualizacion = 500;
 
-      double recorridoX = 0;
-      double velocidad = 0;
-      double[] totalesRecorridos = new double[coches.Length];
+      dynamic[] estadisticasCochesRealtime = new dynamic[coches.Length];
+      for (int i = 0; i < estadisticasCochesRealtime.Length; i++)
+      {
+        dynamic datosRealtime = new ExpandoObject();
+        datosRealtime.nombre = coches[i].Nombre;
+        datosRealtime.velocidad = 0;
+        datosRealtime.recorridoX = 0;
+        estadisticasCochesRealtime[i] = datosRealtime;
+      }
 
-      double maxRecorrido;
+      double maxRecorrido = 0;
       do
       {
         Thread.Sleep(tiempoActualizacion);
@@ -92,23 +101,28 @@ namespace CarreraCoches
 
         for (int i = 0; i < coches.Length; i++)
         {
-          velocidad = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
-          recorridoX = PercorridoEnTiempoX(velocidad, tiempoActualizacion);
-          totalesRecorridos[i] += recorridoX;
+          dynamic datosRealtime = new ExpandoObject();
+          datosRealtime.nombre = coches[i].Nombre;
+          datosRealtime.velocidad = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
+          datosRealtime.recorridoX = RecorridoEnTiempoX(datosRealtime.velocidad) + estadisticasCochesRealtime[i].recorridoX;
+          estadisticasCochesRealtime[i] = datosRealtime;
+          maxRecorrido = datosRealtime.recorridoX > maxRecorrido ? datosRealtime.recorridoX : maxRecorrido;
         }
-        maxRecorrido = totalesRecorridos.Max();
 
         /*-------- GRAFICO -----------*/
         Console.Clear();
         MuestraDatos(coches, pista);
-        MostrarGrafico(coches, totalesRecorridos, FIN);
+        MostrarGrafico(coches, estadisticasCochesRealtime, FIN);
       } while (maxRecorrido <= FIN);
 
-      string ganador = coches[Array.IndexOf(totalesRecorridos, maxRecorrido)].Nombre;
-      System.Console.WriteLine(ganador);
+      string ganador = estadisticasCochesRealtime.Where(datoCoche => datoCoche.recorridoX == maxRecorrido).Select(datoCoche => datoCoche.nombre).Single();
+
+      Console.ForegroundColor = ConsoleColor.Green;
+      Console.Write($"\nEl ganador es: {ganador}\n\n");
+      Console.ForegroundColor = ConsoleColor.Black;
     }
 
-    private static void MostrarGrafico(Coche[] coches, double[] totalesRecorridos, int FIN)
+    private static void MostrarGrafico(Coche[] coches, dynamic[] datos, int FIN)
     {
       int totalCeldas = 30;
       var grafico = new StringBuilder();
@@ -117,7 +131,7 @@ namespace CarreraCoches
       /* Por cada coche crea una linea */
       for (int i = 0; i < coches.Length; i++)
       {
-        int celdasRecorridas = Convert.ToInt32(Math.Floor((totalesRecorridos[i] * totalCeldas) / FIN));
+        int celdasRecorridas = Convert.ToInt32(Math.Floor((datos[i].recorridoX * totalCeldas) / FIN));
 
         if (celdasRecorridas > totalCeldas) celdasRecorridas = totalCeldas;
 
@@ -127,14 +141,14 @@ namespace CarreraCoches
           celdas += "#";
         }
 
-        grafico.AppendLine($"{coches[i].Nombre.PadRight(13)}|{celdas.PadRight(30)}| FIN | Tot.recorrido: {totalesRecorridos[i]:f2} m");
+        grafico.AppendLine($"{coches[i].Nombre.PadRight(13)}|{celdas.PadRight(30)}| V.Actual: {datos[i].velocidad:f2} km/h | Tot.recorrido: {datos[i].recorridoX:f2} m");
       }
 
       System.Console.WriteLine($"{grafico}");
 
     }
 
-    private static double PercorridoEnTiempoX(double velocidad, int tiempoX)
+    private static double RecorridoEnTiempoX(double velocidad, int tiempoX = 1000)
     {
       return velocidad * (1000d / 3600d) * ((double)tiempoX / 1000d);
     }
