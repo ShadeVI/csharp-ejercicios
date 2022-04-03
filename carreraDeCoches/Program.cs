@@ -62,18 +62,17 @@ namespace CarreraCoches
       const int columnWidth = 14;
       Console.ForegroundColor = ConsoleColor.Cyan;
       Console.WriteLine("\nINFO COCHES");
-      Console.ForegroundColor = ConsoleColor.Black;
-      Console.WriteLine($"{"Nombre".PadRight(columnWidth)}{"Modelo".PadRight(columnWidth)}{"Color".PadRight(columnWidth)}{"Velocidad Maxima".PadRight(columnWidth)}\n");
+      Console.ResetColor();
+      Console.WriteLine($"{"Nombre".PadRight(columnWidth)}{"Modelo".PadRight(columnWidth)}{"Color".PadRight(columnWidth)}{"Peso".PadRight(columnWidth)}{"Velocidad Maxima".PadRight(columnWidth)}\n");
       for (int i = 0; i < coches.Length; i++)
       {
         coches[i].InfoCoche();
       }
       Console.ForegroundColor = ConsoleColor.Cyan;
       Console.WriteLine("\nINFO PISTA\n");
-      Console.ForegroundColor = ConsoleColor.Black;
+      Console.ResetColor();
       pista.InfoPista();
 
-      Console.WriteLine("-------------------------------\n");
     }
 
     private static void EmpezarCarrera(Coche[] coches, Pista pista)
@@ -87,7 +86,7 @@ namespace CarreraCoches
       {
         dynamic datosRealtime = new ExpandoObject();
         datosRealtime.nombre = coches[i].Nombre;
-        datosRealtime.velocidad = 0;
+        datosRealtime.velocidadFinal = 0;
         datosRealtime.recorridoX = 0;
         estadisticasCochesRealtime[i] = datosRealtime;
       }
@@ -99,12 +98,15 @@ namespace CarreraCoches
 
         /* ------- LOOP COCHES -------*/
 
+        /* CALCULOS DE LOS DATOS EN LA FRACCION DE TIEMPO */
+
         for (int i = 0; i < coches.Length; i++)
         {
+          double velocidadInicial = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
           dynamic datosRealtime = new ExpandoObject();
           datosRealtime.nombre = coches[i].Nombre;
-          datosRealtime.velocidad = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
-          datosRealtime.recorridoX = RecorridoEnTiempoX(datosRealtime.velocidad) + estadisticasCochesRealtime[i].recorridoX;
+          datosRealtime.velocidadFinal = CalculoVelocidadFinal(velocidadInicial, pista.Friccion, tiempoActualizacion);
+          datosRealtime.recorridoX = EspacioRecorrido(datosRealtime.velocidadFinal, tiempoActualizacion) + estadisticasCochesRealtime[i].recorridoX;
           estadisticasCochesRealtime[i] = datosRealtime;
           maxRecorrido = datosRealtime.recorridoX > maxRecorrido ? datosRealtime.recorridoX : maxRecorrido;
         }
@@ -119,18 +121,25 @@ namespace CarreraCoches
 
       Console.ForegroundColor = ConsoleColor.Green;
       Console.Write($"\nEl ganador es: {ganador}\n\n");
-      Console.ForegroundColor = ConsoleColor.Black;
+      Console.ResetColor();
     }
 
     private static void MostrarGrafico(Coche[] coches, dynamic[] datos, int FIN)
     {
       int totalCeldas = 30;
-      var grafico = new StringBuilder();
+      var header = new StringBuilder();
 
+      /* crea header */
+      header.Append($"{"Nombre".PadRight(13)}");
+      header.Append($"| {"".PadRight(30)}");
+      header.Append($"| {"Velocidad Actual".PadRight(20)}");
+      header.AppendLine($"| Tot.recorrido");
+      header.AppendLine(string.Concat(Enumerable.Repeat("-", Console.WindowWidth)));
 
       /* Por cada coche crea una linea */
       for (int i = 0; i < coches.Length; i++)
       {
+        var linea = new StringBuilder();
         int celdasRecorridas = Convert.ToInt32(Math.Floor((datos[i].recorridoX * totalCeldas) / FIN));
 
         if (celdasRecorridas > totalCeldas) celdasRecorridas = totalCeldas;
@@ -140,17 +149,29 @@ namespace CarreraCoches
         {
           celdas += "#";
         }
-
-        grafico.AppendLine($"{coches[i].Nombre.PadRight(13)}|{celdas.PadRight(30)}| V.Actual: {datos[i].velocidad:f2} km/h | Tot.recorrido: {datos[i].recorridoX:f2} m");
+        /* crea linea */
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        linea.Append($"{coches[i].Nombre.PadRight(13)}");
+        linea.Append($"| {celdas.PadRight(30)}");
+        linea.Append($"| {datos[i].velocidadFinal:f2} km/h".PadRight(22));
+        linea.AppendLine($"| {datos[i].recorridoX:f2} m");
+        Console.WriteLine($"{linea}");
+        Console.ResetColor();
       }
 
-      System.Console.WriteLine($"{grafico}");
 
     }
 
-    private static double RecorridoEnTiempoX(double velocidad, int tiempoX = 1000)
+    private static double CalculoVelocidadFinal(double velocidadInicial, (string, double) friccion, int tiempo = 1000)
     {
-      return velocidad * (1000d / 3600d) * ((double)tiempoX / 1000d);
+      double calc = velocidadInicial - (friccion.Item2 * 9.8 * 1);
+      if (calc <= 0) calc = 0;
+      return calc;
+    }
+
+    private static double EspacioRecorrido(double velocidad, int tiempoX = 1000)
+    {
+      return velocidad * (1000d / 3600d) * 1;
     }
   }
 }
