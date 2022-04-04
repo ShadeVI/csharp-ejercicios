@@ -30,6 +30,7 @@ namespace CarreraCoches
         catch (ArgumentOutOfRangeException)
         {
           System.Console.WriteLine("Numero de coches no valido. Valor usado: 2.\n\n");
+          numeroDeCoches = 2;
         }
 
         Console.WriteLine("Empezamos la carrera?");
@@ -79,7 +80,9 @@ namespace CarreraCoches
     {
       Random r = new Random();
       int FIN = pista.LongitudPista;
-      int tiempoActualizacion = 1000;
+      int tiempoActualizacion = 100;
+
+      bool todosEnAvaria = false;
 
       dynamic[] estadisticasCochesRealtime = new dynamic[coches.Length];
       for (int i = 0; i < estadisticasCochesRealtime.Length; i++)
@@ -89,7 +92,8 @@ namespace CarreraCoches
         datosRealtime.velocidadFinal = 0;
         datosRealtime.recorridoX = 0;
         datosRealtime.totalVelocidades = 0;
-        datosRealtime.stepsRegistrados = 0;
+        datosRealtime.recorridoTotal = 0;
+        datosRealtime.tiempoTranscurrido = 0;
         estadisticasCochesRealtime[i] = datosRealtime;
       }
 
@@ -98,34 +102,61 @@ namespace CarreraCoches
       {
         Thread.Sleep(tiempoActualizacion);
 
-        /* ------- LOOP COCHES -------*/
+        /* RANDOMIZAR AVARIA ANTES DE CALCULOS*/
+        foreach (Coche coche in coches)
+        {
+          if (!coche.Avaria)
+            coche.RandomizarAvaria();
+        }
 
+        /* ------- LOOP COCHES -------*/
         /* CALCULOS DE LOS DATOS EN LA FRACCION DE TIEMPO */
 
         for (int i = 0; i < coches.Length; i++)
         {
-          double velocidadInicial = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
-          dynamic datosRealtime = new ExpandoObject();
-          datosRealtime.nombre = coches[i].Nombre;
-          datosRealtime.velocidadFinal = CalculoVelocidadFinal(velocidadInicial, pista.Friccion);
-          datosRealtime.recorridoX = EspacioRecorrido(datosRealtime.velocidadFinal) + estadisticasCochesRealtime[i].recorridoX;
-          datosRealtime.totalVelocidades = estadisticasCochesRealtime[i].totalVelocidades + estadisticasCochesRealtime[i].velocidadFinal;
-          datosRealtime.stepsRegistrados = estadisticasCochesRealtime[i].stepsRegistrados + 1;
-          estadisticasCochesRealtime[i] = datosRealtime;
-          maxRecorrido = datosRealtime.recorridoX > maxRecorrido ? datosRealtime.recorridoX : maxRecorrido;
+          double velocidadInicial = 0;
+
+          if (!coches[i].Avaria)
+          {
+            velocidadInicial = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
+            estadisticasCochesRealtime[i].velocidadFinal = CalculoVelocidadFinal(velocidadInicial, pista.Friccion);
+            estadisticasCochesRealtime[i].recorridoX = EspacioRecorrido(estadisticasCochesRealtime[i].velocidadFinal);
+            estadisticasCochesRealtime[i].totalVelocidades += estadisticasCochesRealtime[i].velocidadFinal;
+            estadisticasCochesRealtime[i].recorridoTotal += estadisticasCochesRealtime[i].recorridoX;
+          }
+          else
+          {
+            estadisticasCochesRealtime[i].velocidadFinal = 0;
+          }
+
+          estadisticasCochesRealtime[i].tiempoTranscurrido++;
+          maxRecorrido = estadisticasCochesRealtime[i].recorridoTotal > maxRecorrido ? estadisticasCochesRealtime[i].recorridoTotal : maxRecorrido;
         }
 
         /*-------- GRAFICO -----------*/
         Console.Clear();
         MuestraDatos(coches, pista);
         MostrarGrafico(coches, estadisticasCochesRealtime, FIN);
-      } while (maxRecorrido <= FIN);
 
-      string ganador = estadisticasCochesRealtime.Where(datoCoche => datoCoche.recorridoX == maxRecorrido).Select(datoCoche => datoCoche.nombre).Single();
+        todosEnAvaria = coches.All((coche) => coche.Avaria);
 
-      Console.ForegroundColor = ConsoleColor.Green;
-      Console.Write($"\nEl ganador es: {ganador}\n\n");
-      Console.ResetColor();
+      } while (maxRecorrido <= FIN && !todosEnAvaria);
+
+      if (!todosEnAvaria)
+      {
+        string ganador = estadisticasCochesRealtime.Where(datoCoche => datoCoche.recorridoTotal == maxRecorrido).Select(datoCoche => datoCoche.nombre).Single();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write($"\nEl ganador es: {ganador}\n\n");
+        Console.ResetColor();
+
+      }
+      else
+      {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write($"\nTodos los coches en avarias. No hay ganador.\n\n");
+        Console.ResetColor();
+      }
+
     }
 
     private static void MostrarGrafico(Coche[] coches, dynamic[] datos, int FIN)
@@ -135,17 +166,18 @@ namespace CarreraCoches
 
       /* crea header */
       header.Append($"{"Nombre".PadRight(13)}");
-      header.Append($"| {"".PadRight(30)}");
+      header.Append($"| {"Trayecto".PadRight(30)}");
       header.Append($"| {"Velocidad Actual".PadRight(15)}");
       header.Append($"| {"Velocidad Media".PadRight(15)}");
-      header.AppendLine($"| Tot.recorrido");
+      header.Append($"| Tot.recorrido".PadRight(15));
+      header.AppendLine($"| Estado Avaria");
       header.AppendLine(string.Concat(Enumerable.Repeat("-", Console.WindowWidth)));
 
       var grafico = new StringBuilder();
       /* Por cada coche crea una linea */
       for (int i = 0; i < coches.Length; i++)
       {
-        int celdasRecorridas = Convert.ToInt32(Math.Floor((datos[i].recorridoX * totalCeldas) / FIN));
+        int celdasRecorridas = Convert.ToInt32(Math.Floor((double)(datos[i].recorridoTotal * totalCeldas) / FIN));
 
         if (celdasRecorridas > totalCeldas) celdasRecorridas = totalCeldas;
 
@@ -158,12 +190,14 @@ namespace CarreraCoches
         grafico.Append($"{coches[i].Nombre.PadRight(13)}");
         grafico.Append($"| {celdas.PadRight(30)}");
         grafico.Append($"| {datos[i].velocidadFinal:f2} km/h".PadRight(18));
-        grafico.Append($"| {(datos[i].totalVelocidades / datos[i].stepsRegistrados):f2} km/h".PadRight(18));
-        grafico.AppendLine($"| {datos[i].recorridoX:f2} m");
+        grafico.Append($"| {(datos[i].recorridoTotal / datos[i].tiempoTranscurrido):f2} km/h".PadRight(17));
+        grafico.Append($"| {datos[i].recorridoTotal:f2} m".PadRight(15));
+        string status = coches[i].Avaria == true ? coches[i].ComponenteEnAvaria.Item1 : "Todo bien";
+        grafico.AppendLine($"| {status}");
       }
       Console.WriteLine(header);
       Console.ForegroundColor = ConsoleColor.Cyan;
-      Console.WriteLine($"{grafico}");
+      Console.WriteLine(grafico);
 
       Console.ResetColor();
     }

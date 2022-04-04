@@ -9,6 +9,9 @@ namespace CarreraCoches
     private string nombre;
     private string modelo;
     private int peso;
+    private (string, int)[] componentes = { ("motor", 3), ("ruedas", 30), ("arbol de trasmision", 15), ("caja de cambio", 10) };
+    private (string, int) componenteEnAvaria;
+    private bool avaria;
     static private int falsoContador = 1;
 
     public Coche()
@@ -19,6 +22,7 @@ namespace CarreraCoches
       this.color = ImpostarColor(r);
       this.peso = ImpostarPeso(r);
       this.velocidadMaxima = ImpostarVelocidadMaxima(r);
+      this.avaria = false;
       Coche.falsoContador++;
     }
 
@@ -30,6 +34,8 @@ namespace CarreraCoches
       this.color = ImpostarColor(r);
       this.peso = ImpostarPeso(r);
       this.velocidadMaxima = ImpostarVelocidadMaxima(r);
+      this.avaria = false;
+      Coche.falsoContador++;
     }
 
     public string Nombre
@@ -50,6 +56,15 @@ namespace CarreraCoches
     {
       get { return this.velocidadMaxima; }
     }
+    public bool Avaria
+    {
+      get { return this.avaria; }
+    }
+
+    public (string, int) ComponenteEnAvaria
+    {
+      get { return this.componenteEnAvaria; }
+    }
 
     private int ImpostarVelocidadMaxima(Random r)
     {
@@ -67,6 +82,25 @@ namespace CarreraCoches
     {
       ConsoleColor[] colores = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
       return colores[r.Next(0, colores.Length - 1)].ToString();
+    }
+
+    public bool RandomizarAvaria()
+    {
+      Random r = new Random();
+      int rIndex = r.Next(0, componentes.Length);
+      if (rIndex >= 0 && rIndex <= componentes.Length - 1)
+      {
+        (string, int) componente = componentes[rIndex];
+        int probabilidadAveria = r.Next(0, 1000);
+        if (probabilidadAveria <= componente.Item2)
+        {
+          this.componenteEnAvaria = componente;
+          this.avaria = true;
+          System.Console.WriteLine("HERE");
+          return true;
+        }
+      }
+      return false;
     }
 
     public void InfoCoche()
