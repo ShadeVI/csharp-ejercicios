@@ -68,7 +68,7 @@ namespace CarreraCoches
 
     private int ImpostarVelocidadMaxima(Random r)
     {
-      velocidadMaxima = r.Next(100, 150);
+      velocidadMaxima = r.Next(100, 350);
       return velocidadMaxima;
     }
 
@@ -96,7 +96,6 @@ namespace CarreraCoches
         {
           this.componenteEnAveria = componente;
           this.averia = true;
-          System.Console.WriteLine("HERE");
           return true;
         }
       }

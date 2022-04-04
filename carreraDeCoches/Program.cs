@@ -102,12 +102,6 @@ namespace CarreraCoches
       {
         Thread.Sleep(tiempoActualizacion);
 
-        /* RANDOMIZAR AVeRIA ANTES DE CALCULOS*/
-        foreach (Coche coche in coches)
-        {
-          if (!coche.Averia)
-            coche.RandomizarAveria();
-        }
 
         /* ------- LOOP COCHES -------*/
         /* CALCULOS DE LOS DATOS EN LA FRACCION DE TIEMPO */
@@ -137,6 +131,13 @@ namespace CarreraCoches
         Console.Clear();
         MuestraDatos(coches, pista);
         MostrarGrafico(coches, estadisticasCochesRealtime, FIN);
+
+        /* RANDOMIZAR AVeRIA ANTES DE CALCULOS*/
+        foreach (Coche coche in coches)
+        {
+          if (!coche.Averia)
+            coche.RandomizarAveria();
+        }
 
         todosEnAveria = coches.All((coche) => coche.Averia);
 
