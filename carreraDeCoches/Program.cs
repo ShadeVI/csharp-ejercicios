@@ -80,7 +80,7 @@ namespace CarreraCoches
     {
       Random r = new Random();
       int FIN = pista.LongitudPista;
-      int tiempoActualizacion = 100;
+      int tiempoActualizacion = 500;
 
       bool todosEnAvaria = false;
 
