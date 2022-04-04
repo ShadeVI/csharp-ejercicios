@@ -10,8 +10,8 @@ namespace CarreraCoches
     private string modelo;
     private int peso;
     private (string, int)[] componentes = { ("motor", 3), ("ruedas", 30), ("arbol de trasmision", 15), ("caja de cambio", 10) };
-    private (string, int) componenteEnAvaria;
-    private bool avaria;
+    private (string, int) componenteEnAveria;
+    private bool averia;
     static private int falsoContador = 1;
 
     public Coche()
@@ -22,7 +22,7 @@ namespace CarreraCoches
       this.color = ImpostarColor(r);
       this.peso = ImpostarPeso(r);
       this.velocidadMaxima = ImpostarVelocidadMaxima(r);
-      this.avaria = false;
+      this.averia = false;
       Coche.falsoContador++;
     }
 
@@ -34,7 +34,7 @@ namespace CarreraCoches
       this.color = ImpostarColor(r);
       this.peso = ImpostarPeso(r);
       this.velocidadMaxima = ImpostarVelocidadMaxima(r);
-      this.avaria = false;
+      this.averia = false;
       Coche.falsoContador++;
     }
 
@@ -56,14 +56,14 @@ namespace CarreraCoches
     {
       get { return this.velocidadMaxima; }
     }
-    public bool Avaria
+    public bool Averia
     {
-      get { return this.avaria; }
+      get { return this.averia; }
     }
 
-    public (string, int) ComponenteEnAvaria
+    public (string, int) ComponenteEnAveria
     {
-      get { return this.componenteEnAvaria; }
+      get { return this.componenteEnAveria; }
     }
 
     private int ImpostarVelocidadMaxima(Random r)
@@ -84,7 +84,7 @@ namespace CarreraCoches
       return colores[r.Next(0, colores.Length - 1)].ToString();
     }
 
-    public bool RandomizarAvaria()
+    public bool RandomizarAveria()
     {
       Random r = new Random();
       int rIndex = r.Next(0, componentes.Length);
@@ -94,8 +94,8 @@ namespace CarreraCoches
         int probabilidadAveria = r.Next(0, 1000);
         if (probabilidadAveria <= componente.Item2)
         {
-          this.componenteEnAvaria = componente;
-          this.avaria = true;
+          this.componenteEnAveria = componente;
+          this.averia = true;
           System.Console.WriteLine("HERE");
           return true;
         }

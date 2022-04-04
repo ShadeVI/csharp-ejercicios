@@ -82,7 +82,7 @@ namespace CarreraCoches
       int FIN = pista.LongitudPista;
       int tiempoActualizacion = 500;
 
-      bool todosEnAvaria = false;
+      bool todosEnAveria = false;
 
       dynamic[] estadisticasCochesRealtime = new dynamic[coches.Length];
       for (int i = 0; i < estadisticasCochesRealtime.Length; i++)
@@ -102,11 +102,11 @@ namespace CarreraCoches
       {
         Thread.Sleep(tiempoActualizacion);
 
-        /* RANDOMIZAR AVARIA ANTES DE CALCULOS*/
+        /* RANDOMIZAR AVeRIA ANTES DE CALCULOS*/
         foreach (Coche coche in coches)
         {
-          if (!coche.Avaria)
-            coche.RandomizarAvaria();
+          if (!coche.Averia)
+            coche.RandomizarAveria();
         }
 
         /* ------- LOOP COCHES -------*/
@@ -116,7 +116,7 @@ namespace CarreraCoches
         {
           double velocidadInicial = 0;
 
-          if (!coches[i].Avaria)
+          if (!coches[i].Averia)
           {
             velocidadInicial = r.NextDouble() * (coches[i].VelocidadMaxima + 1);
             estadisticasCochesRealtime[i].velocidadFinal = CalculoVelocidadFinal(velocidadInicial, pista.Friccion);
@@ -138,11 +138,11 @@ namespace CarreraCoches
         MuestraDatos(coches, pista);
         MostrarGrafico(coches, estadisticasCochesRealtime, FIN);
 
-        todosEnAvaria = coches.All((coche) => coche.Avaria);
+        todosEnAveria = coches.All((coche) => coche.Averia);
 
-      } while (maxRecorrido <= FIN && !todosEnAvaria);
+      } while (maxRecorrido <= FIN && !todosEnAveria);
 
-      if (!todosEnAvaria)
+      if (!todosEnAveria)
       {
         string ganador = estadisticasCochesRealtime.Where(datoCoche => datoCoche.recorridoTotal == maxRecorrido).Select(datoCoche => datoCoche.nombre).Single();
         Console.ForegroundColor = ConsoleColor.Green;
@@ -153,7 +153,7 @@ namespace CarreraCoches
       else
       {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write($"\nTodos los coches en avarias. No hay ganador.\n\n");
+        Console.Write($"\nTodos los coches en averias. No hay ganador.\n\n");
         Console.ResetColor();
       }
 
@@ -170,7 +170,7 @@ namespace CarreraCoches
       header.Append($"| {"Velocidad Actual".PadRight(15)}");
       header.Append($"| {"Velocidad Media".PadRight(15)}");
       header.Append($"| Tot.recorrido".PadRight(15));
-      header.AppendLine($"| Estado Avaria");
+      header.AppendLine($"| Estado Averia");
       header.AppendLine(string.Concat(Enumerable.Repeat("-", Console.WindowWidth)));
 
       var grafico = new StringBuilder();
@@ -192,7 +192,7 @@ namespace CarreraCoches
         grafico.Append($"| {datos[i].velocidadFinal:f2} km/h".PadRight(18));
         grafico.Append($"| {(datos[i].recorridoTotal / datos[i].tiempoTranscurrido):f2} km/h".PadRight(17));
         grafico.Append($"| {datos[i].recorridoTotal:f2} m".PadRight(15));
-        string status = coches[i].Avaria == true ? coches[i].ComponenteEnAvaria.Item1 : "Todo bien";
+        string status = coches[i].Averia == true ? coches[i].ComponenteEnAveria.Item1 : "Todo bien";
         grafico.AppendLine($"| {status}");
       }
       Console.WriteLine(header);
