@@ -46,13 +46,17 @@ namespace Program1
         // Los array se pasan por referencia. Necesitamos crear copias para guardar el estado anterior
         char[,] cloneMapaBase = ClonarMapa(mapaBase);
 
+        Console.WriteLine("\nQuieres visualizar graficamente la busqueda (S/s = SI)? Mayor consumo de recursos y mas lento.");
+        bool visualizar = Console.ReadLine().ToUpper() == "S" ? true : false;
+
         Console.WriteLine($"\nBuscando ruta...\n");
         //Recorremos el mapa, empieza la recursividad.
-        // RecorrerMapa(mapa, posX, posY, pasosActuales, posXanterior, posYanterior)
-        RecorrerMapa(cloneMapaBase, coordenadasInicio.X, coordenadasInicio.Y, 0, coordenadasInicio.X, coordenadasInicio.Y);
+        // RecorrerMapa(mapa, posX, posY, pasosActuales, posXanterior, posYanterior, visualizar)
+        RecorrerMapa(cloneMapaBase, coordenadasInicio.X, coordenadasInicio.Y, 0, coordenadasInicio.X, coordenadasInicio.Y, visualizar);
 
         if (numeroPasosTotales > 0)
         {
+          ImprimirMapa(mapaBase);
           Console.WriteLine($"\nRuta mas rapida: {numeroPasosTotales} pasos\n");
           ImprimirMapa(mapaSolucion);
         }
@@ -67,8 +71,15 @@ namespace Program1
 
     }
 
-    private static void RecorrerMapa(char[,] mapa, int posX, int posY, int pasosActuales, int anteriorX, int anteriorY)
+    private static void RecorrerMapa(char[,] mapa, int posX, int posY, int pasosActuales, int anteriorX, int anteriorY, bool visualizar = false)
     {
+      if (visualizar)
+      {
+        Console.Clear();
+        ImprimirMapa(mapa);
+        Thread.Sleep(10);
+      }
+
       // Si hemos llegado al final ------ CASO BASE funcion recursiva --------
       if (mapa[posX, posY] == FIN)
       {
@@ -111,13 +122,13 @@ namespace Program1
 
         // logica siguiente paso
         // paso ARRIBA
-        if (posX > 0) RecorrerMapa(ClonarMapa(mapa), posX - 1, posY, pasosActuales + 1, posX, posY);
+        if (posX > 0) RecorrerMapa(ClonarMapa(mapa), posX - 1, posY, pasosActuales + 1, posX, posY, visualizar);
         // paso ABAJO
-        if (posX < mapa.GetUpperBound(0)) RecorrerMapa(ClonarMapa(mapa), posX + 1, posY, pasosActuales + 1, posX, posY);
+        if (posX < mapa.GetUpperBound(0)) RecorrerMapa(ClonarMapa(mapa), posX + 1, posY, pasosActuales + 1, posX, posY, visualizar);
         // paso IZQUIERDA
-        if (posY > 0) RecorrerMapa(ClonarMapa(mapa), posX, posY - 1, pasosActuales + 1, posX, posY);
+        if (posY > 0) RecorrerMapa(ClonarMapa(mapa), posX, posY - 1, pasosActuales + 1, posX, posY, visualizar);
         // paso DERECHA
-        if (posY < mapa.GetUpperBound(1)) RecorrerMapa(ClonarMapa(mapa), posX, posY + 1, pasosActuales + 1, posX, posY);
+        if (posY < mapa.GetUpperBound(1)) RecorrerMapa(ClonarMapa(mapa), posX, posY + 1, pasosActuales + 1, posX, posY, visualizar);
 
       }
     }
