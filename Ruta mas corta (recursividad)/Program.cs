@@ -7,25 +7,99 @@ namespace Program1
   {
     public static char[,]? mapaSolucion;
     public static char[,]? mapaBase;
+
+    private static char PARED = '\u2586';
+    private static char FIN = '\u25EF';
+
+    public static int numeroPasosTotales = 0;
     static void Main(string[] args)
     {
+      Console.OutputEncoding = System.Text.Encoding.UTF8;
       string dimensionMapa = "";
+
       bool continuar = true;
+
       while (continuar)
       {
+        // reset variables
+        numeroPasosTotales = 0;
+        mapaSolucion = null;
+        mapaBase = null;
         Console.WriteLine("Cuanto debe ser grande el mapa (ejemplo: 5x5)? ");
         dimensionMapa = Console.ReadLine();
         (int X, int Y) dims = ObtenerDimensiones(dimensionMapa);
 
         ConfigurarMapaBase(out mapaBase, dims.X, dims.Y);
-
         ImprimirMapa(mapaBase);
 
+        // Los array se pasan por referencia. Necesitamos crear copias para guardar el estado anterior
+        char[,] cloneMapaBase = ClonarMapa(mapaBase);
 
-        Console.WriteLine("Tecle Q para salir: ");
+        //Recorremos el mapa, empieza la recursividad.
+        // RecorrerMapa(mapa, posX, posY, pasosActuales)
+        RecorrerMapa(cloneMapaBase, 0, 0, 0);
+
+        if (numeroPasosTotales > 0)
+        {
+          Console.WriteLine($"Solucion encontrada en {numeroPasosTotales} pasos");
+          ImprimirMapa(mapaSolucion);
+        }
+        else
+        {
+          Console.WriteLine($"Solucion no encontrada.");
+        }
+
+        Console.WriteLine("Tecle Q para salir o ENTER para continuar: ");
         if (Console.ReadLine().ToUpper() == "Q") continuar = false;
       };
 
+    }
+
+    private static void RecorrerMapa(char[,] mapa, int posX, int posY, int pasosActuales)
+    {
+      // Si hemos llegado al final ------ CASO BASE funcion recursiva --------
+      if (mapa[posX, posY] == 'F')
+      {
+        // marcamos la fin
+        mapa[posX, posY] = FIN;
+        if (numeroPasosTotales == 0 || pasosActuales < numeroPasosTotales)
+        {
+          // Si aun no se habia hallado la solucion O si los pasos de la actual solucion son menores a los pasosTotales de una solucion anterior, marcarla como solucion.
+          mapaSolucion = ClonarMapa(mapa);
+          numeroPasosTotales = pasosActuales;
+        }
+      }
+      // Si no chocamos con una pared Y si ya no hemos pasado por esa casilla Y si los
+      // pasosActuales son menores a los pasosTotal de una posibile solucion anterior O si no se ha hallado aun una solucion
+      // seguimos buscando una ruta.
+      else if (mapa[posX, posY] != PARED && mapa[posX, posY] != 'X' && (pasosActuales < numeroPasosTotales || numeroPasosTotales == 0))
+      {
+        mapa[posX, posY] = 'X';
+        // logica siguiente paso
+        // paso ARRIBA
+        if (posX > 0) RecorrerMapa(ClonarMapa(mapa), posX - 1, posY, pasosActuales + 1);
+        // paso ABAJO
+        if (posX < mapa.GetUpperBound(0)) RecorrerMapa(ClonarMapa(mapa), posX + 1, posY, pasosActuales + 1);
+        // paso IZQUIERDA
+        if (posY > 0) RecorrerMapa(ClonarMapa(mapa), posX, posY - 1, pasosActuales + 1);
+        // paso DERECHA
+        if (posY < mapa.GetUpperBound(1)) RecorrerMapa(ClonarMapa(mapa), posX, posY + 1, pasosActuales + 1);
+
+      }
+    }
+
+    private static char[,] ClonarMapa(char[,] mapa)
+    {
+      char[,] clone = new char[mapa.GetLength(0), mapa.GetLength(1)];
+
+      for (int x = 0; x < mapa.GetLength(0); x++)
+      {
+        for (int y = 0; y < mapa.GetLength(1); y++)
+        {
+          clone[x, y] = mapa[x, y];
+        }
+      }
+      return clone;
     }
 
     private static void ImprimirMapa(char[,] mapa)
@@ -59,7 +133,7 @@ namespace Program1
           else if (x == newMapaBase.GetUpperBound(0) && y == newMapaBase.GetUpperBound(1)) newMapaBase[x, y] = 'F';
           else
           {
-            newMapaBase[x, y] = probabilidadPared ? '#' : '·';
+            newMapaBase[x, y] = probabilidadPared ? PARED : '·';
           }
         }
       }
@@ -81,8 +155,8 @@ namespace Program1
 
       }
 
-      System.Console.WriteLine("Dimensiones no validas, usando matriz 5x5");
-      return (5, 5);
+      System.Console.WriteLine("Dimensiones no validas, usando matriz 7x7");
+      return (7, 7);
     }
   }
 }
