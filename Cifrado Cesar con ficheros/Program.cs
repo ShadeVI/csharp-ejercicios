@@ -51,7 +51,7 @@
       {
         FileStream fichero = new FileStream(nombreFichero, FileMode.Open, FileAccess.Read);
         StreamReader sr = new StreamReader(fichero);
-        Console.WriteLine($"Contenido del fichero {fichero}:");
+        Console.WriteLine($"\nContenido del fichero {nombreFichero}:\n\n");
         try
         {
           string linea;
@@ -61,7 +61,7 @@
             linea = sr.ReadLine();
             if (linea != null)
             {
-              Console.WriteLine(sr.ReadLine());
+              Console.WriteLine(linea);
             }
           } while (linea != null);
         }
@@ -75,7 +75,7 @@
         }
         sr.Close();
         fichero.Close();
-        Console.WriteLine("_____________________________________\n\n");
+        Console.WriteLine("_____________________________________\n");
       }
     }
 
